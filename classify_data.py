@@ -92,17 +92,29 @@ class Window(Frame):
         self.img.place(x=0, y=0)
     
 
-    def move_image(self):
-        pass
+    def move_image(self, event=None):
+        no_cloud_path = pathlib.Path('./data/no_clouds/')
+        source = pathlib.Path(self.current_img)
+        destination = no_cloud_path / (str(len(self.tested_arr)) + source.suffix)
+        with destination.open(mode='xb') as fid:
+            fid.write(source.read_bytes())
+            source.unlink()
+        print("Image moved to", str(destination))
 
-    def  delete_image(self):
-        pass
+    def  delete_image(self, event=None):
+        source = pathlib.Path(self.current_img)
+        source.unlink()
+        print("image deleted!")
     
     def next_image(self, event=None):
         self.tested_arr.append(
             self.current_img
         )
-        self.current_img = next(self.generator)
+        try:
+            self.current_img = next(self.generator)
+        except StopIteration:
+            print("NO MORE IMAGES!")
+            return
         print("next img", self.current_img)
         load = Image.open(self.current_img)
         render = ImageTk.PhotoImage(load)
@@ -127,7 +139,7 @@ class Window(Frame):
 # you can later have windows within windows.
 root = Tk()
 
-root.geometry("400x300")
+root.geometry("600x600")
 
 #creation of an instance
 app = Window(root)
